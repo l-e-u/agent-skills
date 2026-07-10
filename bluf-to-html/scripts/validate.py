@@ -1,5 +1,5 @@
 #!/usr/bin/env python3
-"""Validate report email HTML against phase 3/4 constraints.
+"""Validate BLUF report HTML against phase 3/4 constraints.
 
 Usage:
   python scripts/validate.py path/to/report.html

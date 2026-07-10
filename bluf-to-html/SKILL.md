@@ -1,11 +1,11 @@
 ---
-name: email-report
-description: Transforms raw report text into styled HTML email plus a JSON manifest for any ESP (Resend, nodemailer, SMTP). Invoke with data and options YAML; outputs .html and .manifest.json. Use when formatting multi-section reports for email pipelines.
+name: bluf-to-html
+description: Transforms raw BLUF report text into styled standalone HTML plus a JSON manifest. Email-client-safe markup, but output works as a preview file, archive, or ESP payload. Invoke with data and options YAML; outputs .html and .manifest.json. Use when formatting multi-section reports to HTML.
 ---
 
-# Email Report
+# BLUF to HTML
 
-**Invoke with data → get HTML + manifest → thin wrapper sends.**
+**Invoke with data → get HTML + manifest → preview, store, or send.**
 
 | File | Role |
 |------|------|
@@ -31,7 +31,7 @@ output_name: "report"
 
 ## Output
 
-1. `{output_dir}/{output_name}.html` — pass to ESP `html` field
+1. `{output_dir}/{output_name}.html` — standalone file, browser preview, or ESP `html` field
 2. `{output_dir}/{output_name}.manifest.json` — `subject`, `html`, metadata
 3. Run validation from this skill's directory: `python scripts/validate.py {path}`
 

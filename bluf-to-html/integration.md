@@ -10,7 +10,7 @@ The skill owns **formatting**. Your project owns **transport**.
 
 ```
 ┌─────────────────┐     ┌──────────────────┐     ┌─────────────────┐
-│  Raw report     │     │  email-report    │     │  Your project   │
+│  Raw report     │     │  bluf-to-html    │     │  Your project   │
 │  data + options │ ──► │  skill           │ ──► │  thin wrapper   │
 └─────────────────┘     └──────────────────┘     └─────────────────┘
                               │                                    │
@@ -64,7 +64,7 @@ Freeform text: title, lead, sections, bullets. Parsing rules in [authoring.md](a
 **Full options + content:**
 
 ```
-/email-report
+/bluf-to-html
 
 ---
 title: Weekly Brief
@@ -78,7 +78,7 @@ background: "#E3EDDF"
 **Content only** (agent infers title from first line, defaults for rest):
 
 ```
-/email-report
+/bluf-to-html
 
 Am I Allowed to Have Tattoos?
 
@@ -239,11 +239,11 @@ Only if `manifest.preheader` is set.
 
 ## 8. Environment-specific thin skills (recommended)
 
-Keep **email-report** universal. Add tiny project skills that chain:
+Keep **bluf-to-html** universal. Add tiny project skills that chain:
 
 | Project skill | Does |
 |---------------|------|
-| `email-report` | Data → HTML + manifest |
+| `bluf-to-html` | Data → HTML + manifest |
 | `send-report-resend` (your repo) | Read manifest → `resend.emails.send` |
 | `send-report-smtp` (your repo) | Read manifest → nodemailer |
 
@@ -252,9 +252,9 @@ Example project skill (5 lines of intent):
 ```markdown
 ---
 name: send-report-resend
-description: Sends email-report output via Resend. Use after generating a report manifest.
+description: Sends bluf-to-html output via Resend. Use after generating a report manifest.
 ---
-1. Require `output/report.manifest.json` from email-report
+1. Require `output/report.manifest.json` from bluf-to-html
 2. Load manifest; send with Resend using manifest.subject and manifest.html
 3. Use idempotency key derived from manifest.title + date
 ```
@@ -285,10 +285,10 @@ Default remains **full document** — works everywhere without a wrapper templat
 
 ## 10. CI / automation hook
 
-If the skill is installed globally, resolve its path first (e.g. `~/.agents/skills/email-report/`). Then:
+If the skill is installed globally, resolve its path first (e.g. `~/.agents/skills/bluf-to-html/`). Then:
 
 ```bash
-python /path/to/email-report/scripts/validate.py output/*.html --strict
+python /path/to/bluf-to-html/scripts/validate.py output/*.html --strict
 ```
 
 Pair with a generate step in your pipeline: raw markdown/text in → HTML artifact out → validate → deploy or send job reads manifest.
