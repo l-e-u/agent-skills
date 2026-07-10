@@ -39,7 +39,7 @@ Docs: [email-report/SKILL.md](email-report/SKILL.md) · [integration.md](email-r
 Validate before send:
 
 ```bash
-python ~/.cursor/skills/email-report/scripts/validate.py output/weekly-brief.html
+python ~/.agents/skills/email-report/scripts/validate.py output/weekly-brief.html
 ```
 
 ## Structure

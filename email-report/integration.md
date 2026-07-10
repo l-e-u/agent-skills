@@ -285,7 +285,7 @@ Default remains **full document** — works everywhere without a wrapper templat
 
 ## 10. CI / automation hook
 
-If the skill is installed globally, resolve its path first (e.g. `~/.cursor/skills/email-report/`). Then:
+If the skill is installed globally, resolve its path first (e.g. `~/.agents/skills/email-report/`). Then:
 
 ```bash
 python /path/to/email-report/scripts/validate.py output/*.html --strict
