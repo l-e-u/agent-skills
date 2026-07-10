@@ -57,7 +57,7 @@ Copy this skeleton. Replace `{{PLACEHOLDERS}}`. Keep all CSS inline.
             <td style="padding:32px 48px 0;">
               <table role="presentation" cellpadding="0" cellspacing="0" border="0" width="85%" style="max-width:520px;">
                 <tr>
-                  <td style="font-size:14px; line-height:1.7; color:rgba(0,0,0,0.6);">
+                  <td style="font-size:14px; line-height:1.7; color:#1a1a1a;">
                     {{LEAD}}
                   </td>
                 </tr>
@@ -121,7 +121,13 @@ First section after intro rule: main content cell uses `padding-top:48px` (space
 </tr>
 ```
 
-## Lead sentence emphasis (prefer over `<strong>`)
+## Report lead
+
+Render the full BLUF paragraph as plain text in the lead cell — primary color (`#1a1a1a`) on the `<td>`. Do not wrap the first sentence in a `<span>`; the whole lead reads at full weight.
+
+## Item body lead sentence (prefer over `<strong>`)
+
+For subsection body columns only — first sentence dark, rest secondary:
 
 ```html
 <span style="color:#1a1a1a;">{{FIRST_SENTENCE}}</span> {{REST_IN_SECONDARY_COLOR}}
@@ -166,8 +172,8 @@ Body column default color: `rgba(0,0,0,0.6)`.
 | Token | Default | Usage |
 |-------|---------|-------|
 | Background | `#FAF9F5` | Full document |
-| Text primary | `#1a1a1a` | Title, labels, lead sentences |
-| Text secondary | `rgba(0,0,0,0.6)` | Body, bullets, intro |
+| Text primary | `#1a1a1a` | Title, lead paragraph, labels, item lead sentences |
+| Text secondary | `rgba(0,0,0,0.6)` | Body, bullets |
 | Text muted | `rgba(0,0,0,0.25)` | Section underline |
 | Divider | `rgba(0,0,0,0.1)` | Intro rule, quote rules |
 | Quote mark | `rgba(0,0,0,0.45)` | Decorative `"` |
@@ -177,6 +183,7 @@ Body column default color: `rgba(0,0,0,0.6)`.
 | Element | Font | Size | Style |
 |---------|------|------|-------|
 | Title (h1) | Georgia, Times | 38px | italic 400 |
+| Lead (BLUF) | System sans | 14px | primary color |
 | Section heading | Georgia, Times | 16px | italic + underline |
 | Subsection label | System sans | 14px | normal 400 |
 | Body | System sans | 14px | secondary color |

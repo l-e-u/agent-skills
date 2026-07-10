@@ -42,7 +42,7 @@ These rules determine quality regardless of styling:
 
 ### BLUF everywhere
 
-- **Report lead:** 1–3 sentences stating the bottom line up front. Often opens with the conclusion ("The short answer: …", "Bottom line: …").
+- **Report lead:** 1–3 sentences stating the bottom line up front. Often opens with the conclusion ("The short answer: …", "Bottom line: …"). Render the **entire** lead in primary color (`#1a1a1a`) — no first-sentence `<span>` wrapper.
 - **Every item:** First sentence of each subsection body states the finding/conclusion; supporting detail follows (as prose or bullets).
 
 ### Real data only
