@@ -30,12 +30,20 @@ WARN_PATTERNS = [
     (r"var\s*\(--", "CSS variables (may strip in email clients)"),
     (r"src\s*=\s*[\"']data:", "base64 data URI image (prefer hosted https URL)"),
     (r"src\s*=\s*[\"']http://", "non-HTTPS image URL"),
-    (r"<style\b", "style block (inline CSS preferred)"),
 ]
+
+def _style_block_warning(html: str) -> str | None:
+    if not re.search(r"<style\b", html, re.IGNORECASE):
+        return None
+    if re.search(r"@media[^\{]*max-width:\s*500px", html, re.IGNORECASE):
+        return None
+    return "style block without mobile breakpoint (include reference.md responsive <style>)"
 
 REQUIRED_PATTERNS = [
     (r"role\s*=\s*[\"']presentation[\"']", "table role=presentation"),
     (r"background-color", "inline background-color"),
+    (r"class\s*=\s*[\"'][^\"']*item-label", "item-label class for mobile stack"),
+    (r"@media[^\{]*max-width:\s*500px", "responsive breakpoint at 500px"),
 ]
 
 
@@ -50,6 +58,10 @@ def validate(html: str, strict: bool = False) -> tuple[list[str], list[str]]:
     for pattern, msg in WARN_PATTERNS:
         if re.search(pattern, html, re.IGNORECASE):
             warnings.append(msg)
+
+    style_warn = _style_block_warning(html)
+    if style_warn:
+        warnings.append(style_warn)
 
     for pattern, msg in REQUIRED_PATTERNS:
         if not re.search(pattern, html, re.IGNORECASE):

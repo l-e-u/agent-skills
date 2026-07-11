@@ -91,7 +91,7 @@ Map content to this hierarchy. Email HTML uses tables; semantics stay the same.
 
 ```
 Report
-├── Header (REPORT + date)
+├── Header (SYNTHESIS + date)
 ├── Title (h1)
 ├── Lead (BLUF paragraph, ~85% width)
 ├── Intro rule (horizontal line)
@@ -109,7 +109,7 @@ Report
 
 | Report-Kit class | Email role |
 |------------------|------------|
-| `report-header` | Top meta row |
+| `report-header` | Top meta row — fixed **SYNTHESIS** label (left) + date (right); not configurable |
 | `report-headline` | h1 title |
 | `report-intro` | Lead paragraph |
 | `report-rule` | Intro rule (and quote flanking rules) |

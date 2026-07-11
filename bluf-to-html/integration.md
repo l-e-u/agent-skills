@@ -44,7 +44,6 @@ Place at the top of the user message or in a fenced block:
 title: "Am I Allowed to Have Tattoos?"      # optional if first line of content is title
 date: "Friday, July 10 2026"               # default: today
 background: "#FAF9F5"                      # PAPERS palette — reference.md
-report_label: "REPORT"
 subject: "Report: Am I Allowed to Have Tattoos?"  # email subject; default: "Report: {title}"
 preheader: "The short answer and Bible principles on tattoos."  # inbox preview text
 output_dir: "output"                       # where to save artifacts
@@ -165,9 +164,9 @@ If it needs JS, canvas, localStorage, or `@font-face` → do not emit.
 
 ## 6. Client compatibility
 
-**Safe:** table layout, inline CSS, `role="presentation"`, Georgia/system fonts, `&bull;` bullets, `border-top` rules, `https://` images, background on body **and** inner table (Gmail).
+**Safe:** table layout, inline CSS, `<style>` block with `@media (max-width: 500px)` for mobile stack/padding, `role="presentation"`, Georgia/system fonts, `&bull;` bullets, `border-top` rules, `https://` images, background on body **and** inner table (Gmail).
 
-**Avoid:** flex/grid, `@font-face`, external CSS, `<script>`, `::before` bullets, base64 images, CSS variables.
+**Avoid:** flex/grid in inline CSS, `@font-face`, external CSS, `<script>`, `::before` bullets, base64 images, CSS variables.
 
 **Outlook:** `mso-line-height-rule:exactly` on rule cells; two-column items as nested tables.
 
