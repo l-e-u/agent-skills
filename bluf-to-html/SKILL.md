@@ -5,15 +5,21 @@ description: Transforms raw BLUF report text into styled standalone HTML plus a 
 
 # BLUF to HTML
 
-**Author content → write report JSON → `render.py` → validate → HTML + manifest.**
+```
+Raw text + YAML options
+  → authoring.md (content → JSON)
+  → render.py (JSON → HTML)
+  → validate.py (gate)
+  → manifest.json + .html
+```
 
 | File | Role |
 |------|------|
-| [authoring.md](authoring.md) | Content structure, BLUF, what to include |
-| [reference.md](reference.md) | Layout spec (implemented by `render.py`) |
-| [integration.md](integration.md) | I/O contract, JSON schema, manifest, ESP wrappers |
-| [scripts/render.py](scripts/render.py) | JSON → HTML (required) |
-| [scripts/validate.py](scripts/validate.py) | Pre-send HTML check |
+| [authoring.md](authoring.md) | Content structure, BLUF → JSON |
+| [integration.md](integration.md) | JSON schema, manifest, ESP handoff |
+| [reference.md](reference.md) | What render output looks like (read-only) |
+| [scripts/render.py](scripts/render.py) | JSON → HTML (**required**) |
+| [scripts/validate.py](scripts/validate.py) | Pre-send check |
 
 ## Invoke
 
@@ -32,22 +38,20 @@ output_name: "report"
 
 ## Agent workflow
 
-```
-- [ ] Parse options + content
-- [ ] Author structured report (authoring.md) → write {output_name}.json
-- [ ] Run: python scripts/render.py {output_name}.json {output_name}.html
-- [ ] Write {output_name}.manifest.json (integration.md)
-- [ ] Run scripts/validate.py on the HTML — fix JSON and re-render if errors
-- [ ] Return paths + fenced HTML (do NOT send unless asked)
-```
+See [integration.md §4](integration.md) for JSON schema and manifest. Summary:
 
-**Do not hand-assemble HTML.** Use `render.py` for all layout.
+1. Parse options + content
+2. Author JSON ([authoring.md](authoring.md)) → `{output_dir}/{output_name}.json`
+3. `python scripts/render.py …json …html`
+4. Write manifest → `validate.py` → fix JSON and re-render if needed
+
+**Do not hand-assemble HTML.**
 
 ## Core rules
 
 1. Content over input structure — pasted dividers are parse hints only
-2. BLUF everywhere; real data only for metrics/tables/quotes
-3. No JavaScript — skill formats; project sends ([integration.md](integration.md))
+2. BLUF everywhere; real data only for quotes and bullets
+3. Layout lives in `render.py` — agent writes JSON only
 
 ## Handoff
 

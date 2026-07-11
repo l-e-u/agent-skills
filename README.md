@@ -22,7 +22,7 @@ Update later: `npx skills update bluf-to-html -g -y`
 
 ### bluf-to-html
 
-Turns raw BLUF report text into styled standalone HTML plus a JSON manifest. Email-client-safe markup; works as preview, archive, or ESP payload.
+Turns raw BLUF report text into structured JSON, then `render.py` produces styled standalone HTML plus a manifest. Email-client-safe markup; works as preview, archive, or ESP payload.
 
 ```yaml
 ---

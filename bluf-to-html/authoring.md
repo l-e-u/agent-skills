@@ -1,22 +1,22 @@
-# Report Authoring Logic (Phase 2)
+# Report Authoring Logic
 
-Layout and structure decisions for the email formatter. Visual styling is fixed in [reference.md](reference.md) — this file governs **what** to emit and **how** to reshape content.
+Content and structure decisions for the report JSON. Layout, CSS, and HTML assembly are handled by [scripts/render.py](scripts/render.py) — see [integration.md](integration.md) for the JSON schema.
 
 Source: Report-Kit authoring principles (BLUF, real-data-only components).
 
 ---
 
-## 1. Division of labor (email context)
+## 1. Division of labor
 
-| Agent decides | Fixed by templates |
-|---------------|-------------------|
-| Whether input qualifies as a report | Inline CSS, fonts, colors, spacing |
-| Title, BLUF lead, section structure | Table layout, intro rule, quote rules |
-| Which components to include (items, bullets, table, callout) | 640px column, paper background |
-| Label text, item count, bullet splits | Email-safe bullet tables |
-| Omitting empty/scaffold components | No footer bar (unless requested) |
+| Agent writes (JSON) | Fixed by `render.py` |
+|---------------------|----------------------|
+| Whether input qualifies as a report | SYNTHESIS header, date, fonts, colors |
+| Title, BLUF lead, section titles | Table layout, intro rule, quote rules |
+| Item labels, body text, bullets | Roman numerals (auto from section order) |
+| Which components to include (quote, bullets) | 640px column, paper background, mobile CSS |
+| Omitting empty/scaffold components | Email-safe bullet tables, section headings |
 
-**Input structure is not output structure.** Dividers (`────────`), paste formatting, and loose numbering are parsing hints. The agent reads for **content and meaning**, then maps to the report schema.
+**Input structure is not output structure.** Dividers (`────────`), paste formatting, and loose numbering are parsing hints. Read for **content and meaning**, then map to the JSON schema in [integration.md](integration.md).
 
 ---
 
@@ -42,15 +42,14 @@ These rules determine quality regardless of styling:
 
 ### BLUF everywhere
 
-- **Report lead:** 1–3 sentences stating the bottom line up front. Often opens with the conclusion ("The short answer: …", "Bottom line: …"). Render the **entire** lead in primary color (`#1a1a1a`) — no first-sentence `<span>` wrapper.
-- **Every item:** First sentence of each subsection body states the finding/conclusion; supporting detail follows (as prose or bullets).
+- **Report lead:** 1–3 sentences stating the bottom line up front. Often opens with the conclusion ("The short answer: …", "Bottom line: …"). Set as JSON `lead` — rendered in primary color.
+- **Every item:** Set JSON `lead` (conclusion) + `rest` (support) or use `bullets` for parallel points. Do not prefix section titles with Roman numerals; `render.py` adds I, II, III…
 
 ### Real data only
 
-- **Metrics row:** Only if 2–4 real numbers exist (costs, counts, percentages). Otherwise omit entirely.
-- **Data table:** Only for comparative data (pricing, options, tradeoffs). Otherwise use prose or bullets.
-- **Pull quote:** Only a sentence that exists in the source and stands alone — typically a contrast or key principle.
-- **Charts, Slack quotes, images, badges:** Omit unless source provides real content. Never scaffold empty components.
+- **Pull quote:** Only a sentence that exists in the source and stands alone — set JSON `quote` or omit.
+- **Bullets:** Only real parallel points from source — set JSON `bullets[]` or use prose.
+- **Metrics, data tables, charts, images, badges:** Not supported by `render.py` — omit entirely.
 
 ### Terse bullets
 
@@ -62,7 +61,7 @@ These rules determine quality regardless of styling:
 
 - Section headings **assert** something: "Why the split works", "Principles to Reason On".
 - Avoid pure labels: "Comparison", "Background", "Overview".
-- Number with Roman numerals (I, II, III…) for scannability.
+- One entry per major theme in JSON `sections[]` — `render.py` numbers them I, II, III…
 
 ### Two-pager density
 
@@ -74,54 +73,35 @@ These rules determine quality regardless of styling:
 
 Mix within a report:
 
-| Form | Use when |
-|------|----------|
-| Short prose | Single coherent point |
-| Bullets | Parallel facts, examples, consequences |
-| Table | Side-by-side comparison, pricing, options |
-| Pull quote | One standout contrast sentence between major sections |
+| Form | JSON | Use when |
+|------|------|----------|
+| Short prose | `lead` + `rest` | Single coherent point |
+| Bullets | `bullets[]` | Parallel facts, examples, consequences |
+| Pull quote | `quote` | One standout contrast sentence between sections |
 
 Don't force every subsection into the same shape.
 
 ---
 
-## 4. Document skeleton (semantic mapping)
+## 4. Document skeleton (JSON mapping)
 
-Map content to this hierarchy. Email HTML uses tables; semantics stay the same.
+Map content to this hierarchy, then write [integration.md §4 JSON schema](integration.md):
 
 ```
-Report
-├── Header (SYNTHESIS + date)
-├── Title (h1)
-├── Lead (BLUF paragraph, ~85% width)
-├── Intro rule (horizontal line)
-├── [optional] Metrics (2–4 numbers only)
-├── Body
-│   ├── Section I (Roman heading + items)
-│   ├── Section II
-│   ├── [optional] Pull quote (between contrast sections)
-│   ├── Section III …
-│   └── Section N
-└── (no footer unless requested)
+Report JSON
+├── title, date, background
+├── lead (BLUF paragraph)
+├── sections[] — one object per major theme
+│   ├── title (claim-making; no "I." prefix)
+│   └── items[] — subsection rows
+│       ├── label (3–6 words; left column)
+│       ├── lead + rest (or body)
+│       └── bullets[] (optional)
+├── quote (optional)
+└── quote_after_section (default 2)
 ```
 
-### Host class → email role
-
-| Report-Kit class | Email role |
-|------------------|------------|
-| `report-header` | Top meta row — fixed **SYNTHESIS** label (left) + date (right); not configurable |
-| `report-headline` | h1 title |
-| `report-intro` | Lead paragraph |
-| `report-rule` | Intro rule (and quote flanking rules) |
-| `report-section` + `section-heading` | Roman section title |
-| `report-item` | Subsection table row |
-| `item-label` / `item-title` | Left column label |
-| `item-body` | Right column body + bullets |
-| `item-badge` | Omit in email unless user provides status text |
-| `metrics-strip` | Omit unless real metrics |
-| `data-table` | HTML table in item-body (email-safe) |
-| `report-quote-break` | Pull quote with flanking rules |
-| `slack-quote` | Omit in email phase 2 (no real Slack data) |
+`render.py` produces: SYNTHESIS header, h1, lead, intro rule, Roman headings, label/body rows, pull quote, mobile CSS. Details: [reference.md](reference.md).
 
 ---
 
@@ -135,34 +115,31 @@ Report
    └─ Summary before first thematic section
    └─ Rewrite as 1–3 tight sentences if source is verbose
 
-3. Identify major sections (Roman I, II, III…)
+3. Identify major sections
    └─ From headings OR infer from topic shifts
-   └─ Rename to claim-making titles if source only labels
-   └─ **Required:** emit section block template (table + `.section-heading`) before each section's items — never skip Roman numerals
+   └─ Rename to claim-making titles → JSON `sections[].title`
+   └─ **Required:** ≥1 section; each must have ≥1 item
 
-4. For each section → identify items (numbered subsections)
+4. For each section → identify items
    └─ From explicit "1." labels OR split dense paragraphs by theme
-   └─ Write short labels for left column (3–6 words)
+   └─ Write short labels → JSON `items[].label` (3–6 words)
 
 5. For each item body:
-   ├─ Lead sentence = conclusion (dark emphasis)
-   ├─ Has 2+ parallel points? → bullet table
-   ├─ Comparative grid in source? → data table
-   └─ Single point? → prose only
+   ├─ Conclusion → JSON `lead`
+   ├─ Supporting prose → JSON `rest`
+   ├─ 2+ parallel points → JSON `bullets[]`
+   └─ Single point → `lead` + `rest` only (no bullets key)
 
 6. Pull quote?
-   └─ Find one contrast/standalone sentence (often jewelry vs tattoos)
-   └─ Place after section II or the section that sets up the contrast
-   └─ If none qualifies → omit callout and its rules
+   └─ Find one contrast/standalone sentence
+   └─ Set JSON `quote`; `quote_after_section: 2` (or section index that sets up contrast)
+   └─ If none qualifies → omit `quote` key entirely
 
-7. Metrics?
-   └─ Count real headline numbers in source
-   └─ 2–4 exist → optional metrics block after lead (before intro rule)
-   └─ Else → skip
-
-8. Strip scaffolding
+7. Strip scaffolding
    └─ Remove (source: …) unless user wants citations
    └─ Remove input dividers, duplicate headings, throat-clearing
+
+8. Write JSON → run `render.py` → run `validate.py`
 ```
 
 ---
@@ -202,40 +179,101 @@ Placement: between sections II and III in principle-driven reports, or after the
 
 ---
 
-## 8. Canonical example: tattoos report
+## 8. Canonical example: tattoos report (JSON)
 
-How source maps to structure (vault/Bible-style content):
+Abbreviated — see [integration.md](integration.md) for full schema:
 
-| Block | Content decision |
-|-------|------------------|
-| Title | Question as headline |
-| Lead | "The short answer: not under a legal ban, but strongly advised against" — BLUF in 3 sentences |
-| I | Scripture — 3 items: direct mention, why law given, Christian application |
-| II | Principles — 3 items: modesty, body belongs to God, forethought; bullets for consequences under forethought |
-| Callout | Jewelry contrast sentence (between II and III) |
-| III | Jewelry comparison — 2 items |
-| IV | Existing tattoos — 1 item; bullets for new vs existing |
-| V | Bottom line — 1 item "The wiser course" |
+```json
+{
+  "title": "Can a Christian Get Tattoos?",
+  "date": "July 10, 2026",
+  "background": "#FAF9F5",
+  "lead": "The short answer: not under a legal ban, but strongly advised against. Christians are not under the Mosaic Law, but the principle behind Leviticus 19:28 still counsels against permanently marking the body.",
+  "quote": "Scripture does not forbid jewelry; tattoos are permanent skin alteration — the counsel runs in the opposite direction.",
+  "quote_after_section": 2,
+  "sections": [
+    {
+      "title": "What Scripture Says About Tattoo Markings",
+      "items": [
+        {
+          "label": "The one direct mention",
+          "lead": "Leviticus 19:28 is the only direct Bible mention of tattoo markings.",
+          "rest": "Israel was forbidden customs linked to false worship and self-disfigurement.",
+          "bullets": [
+            "Leviticus 19:28 — \"You must not make tattoo markings on yourselves.\"",
+            "Egyptians tattooed deity names on their bodies — Israel was to stand apart."
+          ]
+        }
+      ]
+    },
+    {
+      "title": "Principles That Counsel Against Tattoos",
+      "items": [
+        {
+          "label": "Modesty",
+          "lead": "Christians adorn themselves with modesty.",
+          "rest": "Tattoos can draw undue attention to oneself."
+        },
+        {
+          "label": "Your body belongs to God",
+          "lead": "Present your body a sacrifice to God.",
+          "rest": "Motives tied to fad or group identity deserve honest examination."
+        },
+        {
+          "label": "Forethought",
+          "lead": "Tattoo decisions are often hasty; the mark is long-lasting.",
+          "bullets": [
+            "Can affect employment and relationships.",
+            "Regret is common; removal is costly and incomplete."
+          ]
+        }
+      ]
+    },
+    {
+      "title": "How Tattoos Differ From Jewelry",
+      "items": [
+        {
+          "label": "Permanent vs adornment",
+          "lead": "Scripture does not forbid modest jewelry.",
+          "rest": "Tattoos permanently alter the skin — the one form of marking Scripture addresses in prohibition."
+        }
+      ]
+    },
+    {
+      "title": "The Wiser Course",
+      "items": [
+        {
+          "label": "Bottom line",
+          "lead": "Getting a tattoo is not advisable for someone living by Bible principles.",
+          "rest": "Use your power of reason and decide against permanently marking the skin."
+        }
+      ]
+    }
+  ]
+}
+```
 
-**Reorganization allowed:** Move idolatry/Egyptian examples under section I item 1 as bullets; forethought consequences under item 3. Restructure for clarity — do not transcribe paste layout.
+**Reorganization allowed:** Move examples under section I as bullets; do not transcribe paste layout literally.
 
 ---
 
 ## 9. Component omission checklist
 
-Before emitting, confirm:
+Before writing JSON, confirm:
 
-- [ ] No metrics without real numbers
-- [ ] No table without comparative data
-- [ ] No pull quote unless source supports it
-- [ ] No chart, Slack embed, image, badge (email phase 2)
+- [ ] No pull quote unless source supports it (omit `quote` key)
 - [ ] No footer unless user requests
-- [ ] Every section has ≥1 item with substantive body
-- [ ] Every section has a Roman heading row (`I.`, `II.`, …) via `.section-heading` — not folded into `item-label`
-- [ ] Every item leads with conclusion, not setup
+- [ ] Every `sections[]` entry has ≥1 `items[]` with substantive `lead` or `body`
+- [ ] Section titles are claim-making — not folded into `items[].label`
+- [ ] Every item `lead` states conclusion, not setup
+- [ ] Parallel points use `bullets[]`, not long comma chains in `rest`
 
 ---
 
-## 10. Email constraints
+## 10. Pipeline
 
-Templates: [reference.md](reference.md). Delivery, parity, ESP handoff: [integration.md](integration.md).
+1. [authoring.md](authoring.md) — content decisions → JSON
+2. [integration.md](integration.md) — JSON schema + manifest
+3. [scripts/render.py](scripts/render.py) — JSON → HTML
+4. [reference.md](reference.md) — output tokens (what render produces)
+5. [scripts/validate.py](scripts/validate.py) — pre-send check

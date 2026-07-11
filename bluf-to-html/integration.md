@@ -15,7 +15,7 @@ The skill owns **formatting**. Your project owns **transport**.
 └─────────────────┘     └──────────────────┘     └─────────────────┘
                               │                                    │
                               ▼                                    ▼
-                        report.html                          resend.emails.send
+                        report.json → report.html            resend.emails.send
                         report.manifest.json               nodemailer.sendMail
                         (optional)                         { html: manifest.html }
 ```
@@ -92,6 +92,7 @@ The skill **must** produce these artifacts when `save_files: true` (default in a
 
 | File | Purpose |
 |------|---------|
+| `{output_dir}/{output_name}.json` | Structured report — input to `render.py` |
 | `{output_dir}/{output_name}.html` | Full HTML document — preview + ESP body |
 | `{output_dir}/{output_name}.manifest.json` | Machine-readable handoff for wrappers |
 
@@ -176,20 +177,20 @@ The agent does **not** call Resend/nodemailer unless the user separately asks to
 
 ---
 
-## 5. Report-Kit → email parity
+## 5. Unsupported features
 
-No JS in email. Hard-code or omit runtime host features:
+`render.py` v1 handles: title, lead, sections, items, bullets, pull quote, background, mobile CSS.
 
-| Host feature | Email action |
-|--------------|--------------|
-| Color/font pickers | Pick `background` + fixed Georgia/system fonts at build |
-| Auto date | Hard-code in header |
-| Chart.js | Hosted `<img>` or omit + link |
-| Metrics strip | Table template (reference.md) if 2–4 real numbers |
-| Slack quote, settings, grain, ink filters | Omit |
-| Badges | Static label only, no rotation |
+**Do not emit** (not in renderer):
 
-If it needs JS, canvas, localStorage, or `@font-face` → do not emit.
+| Feature | Instead |
+|---------|---------|
+| Metrics strip | Omit, or mention numbers in prose |
+| Data comparison tables | Use `bullets[]` |
+| Charts / images | Omit or link in prose |
+| Badges, footer, fragment mode | Omit |
+
+If content needs JS, canvas, or `@font-face` → out of scope for this skill.
 
 ---
 
@@ -273,7 +274,7 @@ Keep **bluf-to-html** universal. Add tiny project skills that chain:
 
 | Project skill | Does |
 |---------------|------|
-| `bluf-to-html` | Data → HTML + manifest |
+| `bluf-to-html` | JSON → HTML + manifest via `render.py` |
 | `send-report-resend` (your repo) | Read manifest → `resend.emails.send` |
 | `send-report-smtp` (your repo) | Read manifest → nodemailer |
 
@@ -293,23 +294,9 @@ This keeps the formatter portable; transport stays where `RESEND_API_KEY` lives.
 
 ---
 
-## 9. Alternative: body-only fragment
+## 9. Fragment mode (not implemented)
 
-Some teams prefer ESP templates with shared header/footer. The skill can optionally emit **fragment mode**:
-
-```yaml
-output_mode: fragment   # default: document
-```
-
-Fragment = inner content only (everything inside the 640px table). Wrappers wrap in their own shell:
-
-```html
-{{company_header}}
-{{fragment}}
-{{company_footer}}
-```
-
-Default remains **full document** — works everywhere without a wrapper template.
+Body-only HTML for ESP wrapper templates is **not supported** in v1. `render.py` always emits a full document. Default works everywhere without a wrapper shell.
 
 ---
 
@@ -329,8 +316,9 @@ Pair with a generate step in your pipeline: raw markdown/text in → HTML artifa
 
 | File | Role |
 |------|------|
-| SKILL.md | Entry point, invoke/output contract |
-| authoring.md | Content structure, BLUF, component decisions |
-| reference.md | HTML/CSS templates |
-| integration.md | Manifest, validation, ESP wrappers, client rules |
+| SKILL.md | Entry point, pipeline overview |
+| authoring.md | Content decisions → JSON |
+| integration.md | JSON schema, manifest, ESP wrappers |
+| reference.md | Output tokens (read-only; what render produces) |
+| scripts/render.py | JSON → HTML (**required**) |
 | scripts/validate.py | Pre-send HTML check |
