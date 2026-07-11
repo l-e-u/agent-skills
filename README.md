@@ -53,7 +53,9 @@ agent-skills/
 │   ├── authoring.md
 │   ├── reference.md
 │   ├── integration.md
-│   └── scripts/validate.py
+│   └── scripts/
+│       ├── render.py
+│       └── validate.py
 └── README.md
 ```
 

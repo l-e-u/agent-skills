@@ -12,7 +12,7 @@ Copy this skeleton. Replace `{{PLACEHOLDERS}}`. Keep all CSS inline.
 
 ## Full document template
 
-Copy this skeleton. Replace `{{PLACEHOLDERS}}`. Keep CSS inline on elements; include the responsive `<style>` block unchanged.
+Implemented by [scripts/render.py](scripts/render.py). Agents write report JSON and run the script — do not copy this HTML by hand. Reference below documents output shape and tokens.
 
 ```html
 <!DOCTYPE html>
@@ -120,10 +120,18 @@ Copy this skeleton. Replace `{{PLACEHOLDERS}}`. Keep CSS inline on elements; inc
 
 Insert `{{CALLOUT}}` after section II when using the default layout.
 
+**Use a table row for every Roman heading — never `<p>`.** Email clients (Spark, Gmail, Outlook) often strip `<p>` inside layout cells; table headings survive.
+
+Emit **one section block per major section** (I, II, III…). Do not fold section titles into `item-label` — labels are for subsections only (3–6 words).
+
 ```html
-<p style="margin:{{SECTION_TOP_MARGIN}} 0 20px; font-family:Georgia, 'Times New Roman', serif; font-size:16px; font-weight:400; font-style:italic; color:#1a1a1a; line-height:1.3;">
-  <span style="border-bottom:1px solid rgba(0,0,0,0.25); padding-bottom:4px;">{{ROMAN}}. {{SECTION_TITLE}}</span>
-</p>
+<table role="presentation" cellpadding="0" cellspacing="0" border="0" width="100%">
+  <tr>
+    <td class="section-heading" style="padding:{{SECTION_TOP_MARGIN}} 0 20px 0; font-family:Georgia, 'Times New Roman', serif; font-size:16px; font-weight:400; font-style:italic; color:#1a1a1a; line-height:1.3;">
+      <span style="border-bottom:1px solid rgba(0,0,0,0.25); padding-bottom:4px;">{{ROMAN}}. {{SECTION_TITLE}}</span>
+    </td>
+  </tr>
+</table>
 <table role="presentation" cellpadding="0" cellspacing="0" border="0" width="100%">
   {{SUBSECTION_ROWS}}
 </table>

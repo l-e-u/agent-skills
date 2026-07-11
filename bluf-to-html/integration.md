@@ -134,12 +134,43 @@ Fix errors before send. Use `--strict` to treat warnings as errors.
 
 ```
 1. Parse options YAML (if present) + content body
-2. Run authoring workflow (authoring.md)
-3. Assemble HTML (reference.md; optional metrics/table from reference § Extended)
-4. Write {output_name}.html + {output_name}.manifest.json to the project's output_dir
-5. Locate this skill's directory; run scripts/validate.py against the HTML path — fix and regenerate if errors
+2. Author structured report (authoring.md) → write {output_dir}/{output_name}.json
+3. Run: python scripts/render.py {output_dir}/{output_name}.json {output_dir}/{output_name}.html
+4. Write {output_name}.manifest.json (schema below)
+5. Run scripts/validate.py on the HTML — fix JSON and re-render if errors
 6. Return: manifest summary + path to HTML + fenced HTML block
 ```
+
+**Do not hand-assemble HTML.** `render.py` implements [reference.md](reference.md).
+
+### Report JSON schema (input to `render.py`)
+
+```json
+{
+  "title": "Where Is Heaven?",
+  "date": "July 10, 2026",
+  "background": "#FAF9F5",
+  "lead": "BLUF paragraph — full primary color in output.",
+  "quote": "Optional pull quote (omit key if none).",
+  "quote_after_section": 2,
+  "sections": [
+    {
+      "title": "Heaven Is God's Dwelling Place",
+      "items": [
+        {
+          "label": "Jehovah's throne",
+          "lead": "First sentence — dark in output.",
+          "rest": "Supporting prose in secondary color.",
+          "bullets": ["Parallel point one.", "Parallel point two."]
+        }
+      ]
+    }
+  ]
+}
+```
+
+- `items[].body` may substitute for `lead`/`rest` (first sentence auto-split).
+- Omit empty optional fields (`quote`, `bullets`).
 
 The agent does **not** call Resend/nodemailer unless the user separately asks to send.
 

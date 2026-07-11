@@ -43,7 +43,9 @@ REQUIRED_PATTERNS = [
     (r"role\s*=\s*[\"']presentation[\"']", "table role=presentation"),
     (r"background-color", "inline background-color"),
     (r"class\s*=\s*[\"'][^\"']*item-label", "item-label class for mobile stack"),
+    (r"class\s*=\s*[\"'][^\"']*section-heading", "section-heading class for Roman titles"),
     (r"@media[^\{]*max-width:\s*500px", "responsive breakpoint at 500px"),
+    (r"section-heading[\s\S]{0,400}?\bI\.\s", "Roman section I heading"),
 ]
 
 

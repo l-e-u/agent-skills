@@ -5,13 +5,14 @@ description: Transforms raw BLUF report text into styled standalone HTML plus a 
 
 # BLUF to HTML
 
-**Invoke with data → get HTML + manifest → preview, store, or send.**
+**Author content → write report JSON → `render.py` → validate → HTML + manifest.**
 
 | File | Role |
 |------|------|
 | [authoring.md](authoring.md) | Content structure, BLUF, what to include |
-| [reference.md](reference.md) | HTML/CSS templates |
-| [integration.md](integration.md) | I/O contract, manifest, validation, ESP wrappers |
+| [reference.md](reference.md) | Layout spec (implemented by `render.py`) |
+| [integration.md](integration.md) | I/O contract, JSON schema, manifest, ESP wrappers |
+| [scripts/render.py](scripts/render.py) | JSON → HTML (required) |
 | [scripts/validate.py](scripts/validate.py) | Pre-send HTML check |
 
 ## Invoke
@@ -29,23 +30,18 @@ output_name: "report"
 [paste report content]
 ```
 
-## Output
-
-1. `{output_dir}/{output_name}.html` — standalone file, browser preview, or ESP `html` field
-2. `{output_dir}/{output_name}.manifest.json` — `subject`, `html`, metadata
-3. Run validation from this skill's directory: `python scripts/validate.py {path}`
-
-Details: [integration.md](integration.md).
-
 ## Agent workflow
 
 ```
 - [ ] Parse options + content
-- [ ] Author (authoring.md) → assemble (reference.md)
-- [ ] Write .html + .manifest.json in the project's output_dir
-- [ ] Run scripts/validate.py from this skill's install directory — fix errors
+- [ ] Author structured report (authoring.md) → write {output_name}.json
+- [ ] Run: python scripts/render.py {output_name}.json {output_name}.html
+- [ ] Write {output_name}.manifest.json (integration.md)
+- [ ] Run scripts/validate.py on the HTML — fix JSON and re-render if errors
 - [ ] Return paths + fenced HTML (do NOT send unless asked)
 ```
+
+**Do not hand-assemble HTML.** Use `render.py` for all layout.
 
 ## Core rules
 

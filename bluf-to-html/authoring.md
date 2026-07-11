@@ -138,6 +138,7 @@ Report
 3. Identify major sections (Roman I, II, III…)
    └─ From headings OR infer from topic shifts
    └─ Rename to claim-making titles if source only labels
+   └─ **Required:** emit section block template (table + `.section-heading`) before each section's items — never skip Roman numerals
 
 4. For each section → identify items (numbered subsections)
    └─ From explicit "1." labels OR split dense paragraphs by theme
@@ -230,6 +231,7 @@ Before emitting, confirm:
 - [ ] No chart, Slack embed, image, badge (email phase 2)
 - [ ] No footer unless user requests
 - [ ] Every section has ≥1 item with substantive body
+- [ ] Every section has a Roman heading row (`I.`, `II.`, …) via `.section-heading` — not folded into `item-label`
 - [ ] Every item leads with conclusion, not setup
 
 ---
