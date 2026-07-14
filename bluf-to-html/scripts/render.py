@@ -16,7 +16,7 @@ ROMANS = (
 )
 
 HEAD_STYLE = """  <style type="text/css">
-    @media only screen and (max-width: 500px) {
+    @media only screen and (max-width: 640px) {
       .doc-pad-outer { padding-left: 12px !important; padding-right: 12px !important; padding-top: 24px !important; padding-bottom: 40px !important; }
       .doc-pad { padding-left: 20px !important; padding-right: 20px !important; }
       .doc-pad-title { padding-left: 20px !important; padding-right: 20px !important; padding-top: 32px !important; }
@@ -125,7 +125,7 @@ def render_section(section: dict[str, Any], index: int) -> str:
     return f"""<table role="presentation" cellpadding="0" cellspacing="0" border="0" width="100%">
   <tr>
     <td class="section-heading" style="padding:{top} 0 20px 0; font-family:Georgia, 'Times New Roman', serif; font-size:16px; font-weight:400; font-style:italic; color:#1a1a1a; line-height:1.3;">
-      <span style="border-bottom:1px solid rgba(0,0,0,0.25); padding-bottom:4px;">{roman}. {title}</span>
+      <span style="border-bottom:1px solid #BDB5AA; padding-bottom:4px;">{roman}. {title}</span>
     </td>
   </tr>
 </table>
@@ -138,7 +138,7 @@ def render_section(section: dict[str, Any], index: int) -> str:
 def render_quote(quote: str) -> str:
     return f"""<table role="presentation" cellpadding="0" cellspacing="0" border="0" width="100%" style="margin:8px 0 40px;">
   <tr>
-    <td style="border-top:1px solid rgba(0,0,0,0.1); font-size:0; line-height:0; mso-line-height-rule:exactly;">&nbsp;</td>
+    <td style="border-top:1px solid #D8D2C8; font-size:0; line-height:0; mso-line-height-rule:exactly;">&nbsp;</td>
   </tr>
   <tr>
     <td align="center" class="callout-pad" style="padding:36px 24px 28px;">
@@ -149,7 +149,7 @@ def render_quote(quote: str) -> str:
     </td>
   </tr>
   <tr>
-    <td style="border-top:1px solid rgba(0,0,0,0.1); font-size:0; line-height:0; mso-line-height-rule:exactly;">&nbsp;</td>
+    <td style="border-top:1px solid #D8D2C8; font-size:0; line-height:0; mso-line-height-rule:exactly;">&nbsp;</td>
   </tr>
 </table>"""
 
@@ -226,7 +226,7 @@ def render_report(data: dict[str, Any]) -> str:
             <td class="doc-pad" style="padding:40px 48px 0;">
               <table role="presentation" cellpadding="0" cellspacing="0" border="0" width="100%">
                 <tr>
-                  <td style="border-top:1px solid rgba(0,0,0,0.1); font-size:0; line-height:0; mso-line-height-rule:exactly;">&nbsp;</td>
+                  <td style="border-top:1px solid #D8D2C8; font-size:0; line-height:0; mso-line-height-rule:exactly;">&nbsp;</td>
                 </tr>
               </table>
             </td>

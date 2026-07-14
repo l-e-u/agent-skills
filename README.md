@@ -29,8 +29,6 @@ Turns raw BLUF report text into structured JSON, then `render.py` produces style
 title: "Weekly Brief"
 date: "Friday, July 10 2026"
 background: "#E3EDDF"
-output_dir: "output"
-output_name: "weekly-brief"
 ---
 
 [paste report text]
@@ -41,7 +39,7 @@ Docs: [bluf-to-html/SKILL.md](bluf-to-html/SKILL.md) · [integration.md](bluf-to
 Validate before send:
 
 ```bash
-python ~/.agents/skills/bluf-to-html/scripts/validate.py output/weekly-brief.html
+python ~/.agents/skills/bluf-to-html/scripts/validate.py path/to/report.html
 ```
 
 ## Structure

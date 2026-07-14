@@ -33,9 +33,9 @@ For each section:
 [optional] Pull quote between sections
 ```
 
-## Responsive (≤500px)
+## Responsive (≤640px)
 
-Handled entirely by `render.py` — `@media (max-width: 500px)` in document `<head>`:
+Handled entirely by `render.py` — `@media (max-width: 640px)` in document `<head>`:
 
 | Change | Desktop | Mobile |
 |--------|---------|--------|
@@ -52,7 +52,8 @@ Handled entirely by `render.py` — `@media (max-width: 500px)` in document `<he
 | Background | `#FAF9F5` | Set via JSON `background` |
 | Text primary | `#1a1a1a` | Title, lead, labels, item lead |
 | Text secondary | `rgba(0,0,0,0.6)` | Body, bullets |
-| Divider | `rgba(0,0,0,0.1)` | Intro rule, quote rules |
+| Divider | `#D8D2C8` | Intro rule, quote rules |
+| Section underline | `#BDB5AA` | Roman section title underline |
 
 ## Typography
 

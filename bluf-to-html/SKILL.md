@@ -29,8 +29,6 @@ title: "Report Title"
 date: "Friday, July 10 2026"
 background: "#FAF9F5"
 subject: "Report: Report Title"
-output_dir: "output"
-output_name: "report"
 ---
 
 [paste report content]
@@ -41,9 +39,9 @@ output_name: "report"
 See [integration.md §4](integration.md) for JSON schema and manifest. Summary:
 
 1. Parse options + content
-2. Author JSON ([authoring.md](authoring.md)) → `{output_dir}/{output_name}.json`
-3. `python scripts/render.py …json …html`
-4. Write manifest → `validate.py` → fix JSON and re-render if needed
+2. Author JSON ([authoring.md](authoring.md)) → caller/project artifact path
+3. `python scripts/render.py <report.json> <report.html>`
+4. Write manifest beside the rendered artifact → `validate.py` → fix JSON and re-render if needed
 
 **Do not hand-assemble HTML.**
 
@@ -56,6 +54,8 @@ See [integration.md §4](integration.md) for JSON schema and manifest. Summary:
 ## Handoff
 
 ```typescript
-const m = JSON.parse(readFileSync("output/report.manifest.json", "utf8"));
+const manifestPath = process.env.REPORT_MANIFEST_PATH;
+if (!manifestPath) throw new Error("REPORT_MANIFEST_PATH is required");
+const m = JSON.parse(readFileSync(manifestPath, "utf8"));
 await resend.emails.send({ subject: m.subject, html: m.html, ... });
 ```

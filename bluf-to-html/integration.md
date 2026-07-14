@@ -46,9 +46,6 @@ date: "Friday, July 10 2026"               # default: today
 background: "#FAF9F5"                      # PAPERS palette — reference.md
 subject: "Report: Am I Allowed to Have Tattoos?"  # email subject; default: "Report: {title}"
 preheader: "The short answer and Bible principles on tattoos."  # inbox preview text
-output_dir: "output"                       # where to save artifacts
-output_name: "report"                      # basename for files
-save_files: true                           # write report.html + manifest
 ---
 ```
 
@@ -88,13 +85,13 @@ The Bible does not give Christians a simple yes-or-no rule…
 
 ## 3. Output contract
 
-The skill **must** produce these artifacts when `save_files: true` (default in a workspace):
+When file artifacts are requested, the caller or project owns where they are written. The skill artifact set is:
 
 | File | Purpose |
 |------|---------|
-| `{output_dir}/{output_name}.json` | Structured report — input to `render.py` |
-| `{output_dir}/{output_name}.html` | Full HTML document — preview + ESP body |
-| `{output_dir}/{output_name}.manifest.json` | Machine-readable handoff for wrappers |
+| `<report>.json` | Structured report — input to `render.py` |
+| `<report>.html` | Full HTML document — preview + ESP body |
+| `<report>.manifest.json` | Machine-readable handoff for wrappers |
 
 ### Manifest schema
 
@@ -107,7 +104,7 @@ The skill **must** produce these artifacts when `save_files: true` (default in a
   "date": "FRIDAY, JULY 10 2026",
   "background": "#FAF9F5",
   "html": "<!DOCTYPE html>…",
-  "htmlPath": "output/report.html"
+  "htmlPath": "path/to/report.html"
 }
 ```
 
@@ -122,7 +119,7 @@ Also return the HTML in a fenced code block in chat for copy-paste.
 After generating HTML, run `scripts/validate.py` **from this skill's install directory** (wherever `SKILL.md` lives — global or project install):
 
 ```bash
-python scripts/validate.py output/report.html
+python scripts/validate.py path/to/report.html
 ```
 
 The HTML path is relative to the **project workspace**, not the skill directory. Only the validator script path is skill-relative.
@@ -135,9 +132,9 @@ Fix errors before send. Use `--strict` to treat warnings as errors.
 
 ```
 1. Parse options YAML (if present) + content body
-2. Author structured report (authoring.md) → write {output_dir}/{output_name}.json
-3. Run: python scripts/render.py {output_dir}/{output_name}.json {output_dir}/{output_name}.html
-4. Write {output_name}.manifest.json (schema below)
+2. Author structured report (authoring.md) → write `<report>.json` at the caller/project path
+3. Run: `python scripts/render.py <report>.json <report>.html`
+4. Write `<report>.manifest.json` beside the rendered HTML
 5. Run scripts/validate.py on the HTML — fix JSON and re-render if errors
 6. Return: manifest summary + path to HTML + fenced HTML block
 ```
@@ -196,7 +193,7 @@ If content needs JS, canvas, or `@font-face` → out of scope for this skill.
 
 ## 6. Client compatibility
 
-**Safe:** table layout, inline CSS, `<style>` block with `@media (max-width: 500px)` for mobile stack/padding, `role="presentation"`, Georgia/system fonts, `&bull;` bullets, `border-top` rules, `https://` images, background on body **and** inner table (Gmail).
+**Safe:** table layout, inline CSS, `<style>` block with `@media (max-width: 640px)` for mobile stack/padding, `role="presentation"`, Georgia/system fonts, `&bull;` bullets, `border-top` rules, `https://` images, background on body **and** inner table (Gmail).
 
 **Avoid:** flex/grid in inline CSS, `@font-face`, external CSS, `<script>`, `::before` bullets, base64 images, CSS variables.
 
@@ -214,7 +211,9 @@ Run `scripts/validate.py` before send.
 import { readFileSync } from "fs";
 import { Resend } from "resend";
 
-const manifest = JSON.parse(readFileSync("output/report.manifest.json", "utf8"));
+const manifestPath = process.env.REPORT_MANIFEST_PATH;
+if (!manifestPath) throw new Error("REPORT_MANIFEST_PATH is required");
+const manifest = JSON.parse(readFileSync(manifestPath, "utf8"));
 const resend = new Resend(process.env.RESEND_API_KEY);
 
 const { data, error } = await resend.emails.send({
@@ -234,7 +233,9 @@ Use Resend skill for idempotency keys, domain setup, and production gotchas.
 import { readFileSync } from "fs";
 import nodemailer from "nodemailer";
 
-const manifest = JSON.parse(readFileSync("output/report.manifest.json", "utf8"));
+const manifestPath = process.env.REPORT_MANIFEST_PATH;
+if (!manifestPath) throw new Error("REPORT_MANIFEST_PATH is required");
+const manifest = JSON.parse(readFileSync(manifestPath, "utf8"));
 
 await transporter.sendMail({
   from: '"Reports" <reports@yourdomain.com>',
@@ -248,9 +249,10 @@ await transporter.sendMail({
 
 ```python
 import json
+import os
 from pathlib import Path
 
-manifest = json.loads(Path("output/report.manifest.json").read_text())
+manifest = json.loads(Path(os.environ["REPORT_MANIFEST_PATH"]).read_text())
 # pass manifest["html"] to your ESP client
 ```
 
@@ -285,7 +287,7 @@ Example project skill (5 lines of intent):
 name: send-report-resend
 description: Sends bluf-to-html output via Resend. Use after generating a report manifest.
 ---
-1. Require `output/report.manifest.json` from bluf-to-html
+1. Require the manifest path from the project workflow
 2. Load manifest; send with Resend using manifest.subject and manifest.html
 3. Use idempotency key derived from manifest.title + date
 ```
@@ -305,7 +307,7 @@ Body-only HTML for ESP wrapper templates is **not supported** in v1. `render.py`
 If the skill is installed globally, resolve its path first (e.g. `~/.agents/skills/bluf-to-html/`). Then:
 
 ```bash
-python /path/to/bluf-to-html/scripts/validate.py output/*.html --strict
+python /path/to/bluf-to-html/scripts/validate.py path/to/generated/*.html --strict
 ```
 
 Pair with a generate step in your pipeline: raw markdown/text in → HTML artifact out → validate → deploy or send job reads manifest.

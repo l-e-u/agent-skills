@@ -35,7 +35,7 @@ WARN_PATTERNS = [
 def _style_block_warning(html: str) -> str | None:
     if not re.search(r"<style\b", html, re.IGNORECASE):
         return None
-    if re.search(r"@media[^\{]*max-width:\s*500px", html, re.IGNORECASE):
+    if re.search(r"@media[^\{]*max-width:\s*640px", html, re.IGNORECASE):
         return None
     return "style block without mobile breakpoint (include reference.md responsive <style>)"
 
@@ -44,7 +44,7 @@ REQUIRED_PATTERNS = [
     (r"background-color", "inline background-color"),
     (r"class\s*=\s*[\"'][^\"']*item-label", "item-label class for mobile stack"),
     (r"class\s*=\s*[\"'][^\"']*section-heading", "section-heading class for Roman titles"),
-    (r"@media[^\{]*max-width:\s*500px", "responsive breakpoint at 500px"),
+    (r"@media[^\{]*max-width:\s*640px", "responsive breakpoint at 640px"),
     (r"section-heading[\s\S]{0,400}?\bI\.\s", "Roman section I heading"),
 ]
 
